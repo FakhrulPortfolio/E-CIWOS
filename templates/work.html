@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleaning Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #00A19B;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1192px;
+            background-color: #3d3935;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-logo {
+            height: 35px;
+        }
+
+        .navbar-title {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .navbar-button {
+            color: #ccc;
+            padding: 10px 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #3d3935;
+        }
+
+        .navbar-button:hover {
+            background-color: black;
+            border: 2px solid black;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 90vh;
+        }
+        .section {
+            width: 80%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            text-align: center;
+            color: black;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin-bottom: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1192px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px auto;
+            text-align: center;
+            color: black;
+            box-sizing: border-box;
+        }
+        .container-part{
+            display: flex;
+            background-color: #ffffff;
+            justify-content: space-around;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1200px;
+            margin: 40px auto;
+            gap: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        button {
+            color: #ccc;
+            background-color: #3d3935;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: black;
+        }
+
+        #uploadButtonIncident {
+            background-color: #763F98;
+            color: white;
+        }
+        #uploadButtonIncident:hover {
+            background-color: #8d4db6;
+        }
+        
+        #uploadButtonWorkOrder {
+            background-color: #FDB924;
+            color:black;
+        }
+        #uploadButtonWorkOrder:hover {
+            background-color: #ffd57c;
+        }
+
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("uploadFormIncident").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let formData = new FormData();
+                formData.append("file", document.getElementById("fileInputIncident").files[0]);
+
+                fetch("/process-excel-Incident", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(new Blob([blob]));
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'processed_Incident.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => console.error("Error:", error));
+            });
+
+            document.getElementById("uploadFormWorkOrder").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                this.disabled = true;
+
+                let formData = new FormData();
+                formData.append("file", document.getElementById("fileInputWorkOrder").files[0]);
+
+                fetch("/process-excel-WorkOrder", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(new Blob([blob]));
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'processed_WorkOrder.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => console.error("Error:", error));
+                
+                
+            });
+        
+            document.getElementById("uploadButtonIncident").addEventListener("click", function(event) {
+                this.classList.add('disabled');
+            });
+
+            document.getElementById("uploadButtonWorkOrder").addEventListener("click", function(event) {
+                this.classList.add('disabled');
+            });
+        
+            document.getElementById('downloadLink').addEventListener('click', function() {
+                var button = this.querySelector('.navbar-button');
+                button.classList.add('disabled');
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="https://mypetronas.com/images/new-petronas-logo.svg" alt="Logo" class="navbar-logo">
+        </div>
+        <div class="navbar-center">
+            <h1 class="navbar-title">Extracting and Cleaning Incident and Work Order System [E-CIWOS]</h1>
+        </div>
+        <div class="navbar-right">
+            <a id="downloadLink" href="" download="">
+                <button class="navbar-button">Download User Guides</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <h3>Cleaning Incident and Work Order Excel</h3>
+            <div class="container-part">
+                <div id="purple" class="section">
+                    <h3>INCIDENT</h3>
+                    <form id="uploadFormIncident" enctype="multipart/form-data">
+                        <input type="file" id="fileInputIncident" name="file" accept=".xlsx">
+                        <button type="submit" id="uploadButtonIncident">Clean Incident Excel</button>
+                    </form>
+                </div>
+                <div id="yellow" class="section">
+                    <h3>WORK ORDER</h3>
+                    <form id="uploadFormWorkOrder" enctype="multipart/form-data">
+                        <input type="file" id="fileInputWorkOrder" name="file" accept=".xlsx">
+                        <button type="submit" id="uploadButtonWorkOrder">Clean Work Order Excel</button>
+                    </form>
+                </div>
+            </div> 
+        </div>
+        <div class="container">
+            <form action="{{url_for('index')}}" method="post">
+                <button type="submit">Go to Extracting Page</button>
+            </form>
+        </div>
+    
+        
+    </div>
+    
+</body>
+
+</html>

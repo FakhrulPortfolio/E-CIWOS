@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #00A19B;
+        }
+        
+        .navbar {
+            width: 100%;
+            max-width: 1192px;
+            background-color: #3d3935;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-logo {
+            height: 35px;
+        }
+
+        .navbar-title {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .navbar-button {
+            color: #ccc;
+            padding: 10px 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #3d3935;
+        }
+
+        .navbar-button:hover {
+            background-color: black;
+            border: 2px solid black;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 90vh;
+        }
+
+        .section {
+            width: 80%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            text-align: center;
+            color: black;
+        }
+
+        h1,
+        h3 {
+            margin-bottom: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1192px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px auto;
+            text-align: center;
+            color: black;
+            box-sizing: border-box;
+        }
+
+        .container-button {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 0 auto;
+        }
+
+        .container-Incident,
+        .container-Work {
+            width: 45%;
+            max-width: 550px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-align: center;
+            color: black;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .container-Incident,
+            .container-Work {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+
+        .container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .container input[type="text"],
+        .container input[type="password"],
+        .container input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .container input[type="text"],
+            .container input[type="password"],
+            .container input[type="email"] {
+                padding: 6px;
+                margin-bottom: 15px;
+            }
+        }
+
+        progress {
+            width: 100%;
+            height: 30px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ddd;
+        }
+
+        #progress-text-selenium-incident,
+        #progress-text-selenium-work {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            background-color: #3d3935;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: black;
+        }
+
+        #run-IncidentScript {
+            background-color: #763F98;
+            color: white;
+        }
+
+        #run-IncidentScript:hover {
+            background-color: #8d4db6;
+        }
+
+        #run-WorkOrderScript {
+            background-color: #FDB924;
+            color:black;
+        }
+
+        #run-WorkOrderScript:hover {
+            background-color: #ffd57c;
+        }
+
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const progressBarSeleniumIncident = document.getElementById("progress-bar-selenium-incident");
+            const progressTextSeleniumIncident = document.getElementById("progress-text-selenium-incident");
+            const eventSourceSeleniumIncident = new EventSource("/progress_Incident_Selenium");
+
+            eventSourceSeleniumIncident.onmessage = function (event) {
+                const progress = parseInt(event.data);
+                progressBarSeleniumIncident.value = progress;
+                progressTextSeleniumIncident.innerText = progress + "%";
+            };
+
+            const progressBarSeleniumWorkOrder = document.getElementById("progress-bar-selenium-work");
+            const progressTextSeleniumWorkOrder = document.getElementById("progress-text-selenium-work");
+            const eventSourceSeleniumWorkOrder = new EventSource("/progress_WorkOrder_Selenium");
+
+            eventSourceSeleniumWorkOrder.onmessage = function (event) {
+                const progress = parseInt(event.data);
+                progressBarSeleniumWorkOrder.value = progress;
+                progressTextSeleniumWorkOrder.innerText = progress + "%";
+            };
+
+            document.getElementById("run-IncidentScript").addEventListener("click", function (event) {
+                event.preventDefault();
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                this.remove();
+                document.querySelector(".progress-Incident").classList.remove("hidden");
+
+                fetch("/run-IncidentScript", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: email, password: password })
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.status !== "success") {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            });
+
+            document.getElementById("run-WorkOrderScript").addEventListener("click", function (event) {
+                event.preventDefault();
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                this.remove();
+                document.querySelector(".progress-Work").classList.remove("hidden");
+
+                fetch("/run-WorkOrderScript", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: email, password: password })
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.status !== "success") {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            });
+
+            document.getElementById('downloadLink').addEventListener('click', function() {
+                var button = this.querySelector('.navbar-button');
+                button.classList.add('disabled');
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="https://mypetronas.com/images/new-petronas-logo.svg" alt="Logo" class="navbar-logo">
+        </div>
+        <div class="navbar-center">
+            <h1 class="navbar-title">Extracting and Cleaning Incident and Work Order System [E-CIWOS]</h1>
+        </div>
+        <div class="navbar-right">
+            <a id="downloadLink" href="" download="">
+                <button class="navbar-button">Download User Guides</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <h3>Extracting Incident and Work Order Data from myGenie+</h3>
+            <form class="container" action="/" method="post">
+                <label for="email">Enter PETRONAS Email:</label>
+                <input type="email" id="email" name="email">
+                <label for="password">Enter Password:</label>
+                <input type="password" id="password" name="password">
+                <div class="container-button">
+                    <div class="container-Incident">
+                        <button id="run-IncidentScript" type="button">Extract Incident Data</button>
+                        <div class="progress-Incident hidden">
+                            <progress id="progress-bar-selenium-incident" value="0" max="100"></progress>
+                            <p id="progress-text-selenium-incident">0%</p>
+                        </div>
+                    </div>
+                    <div class="container-Work">
+                        <button id="run-WorkOrderScript" type="button">Extract Work Order Data</button>
+                        <div class="progress-Work hidden">
+                            <progress id="progress-bar-selenium-work" value="0" max="100"></progress>
+                            <p id="progress-text-selenium-work">0%</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="container">
+            <form action="{{url_for('work')}}" method="post">
+                <button type="submit">Go to Cleaning Page</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
